@@ -65,7 +65,11 @@ class Controller(object):
                 'dev_ppls': [],
                 'dev_bleus': []
             }
-
+    def load(self):
+        train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
+        with open(train_stats_file, 'rb') as f:
+            self.stats = pickle.load(f)
+        
     def train(self):
         # load data
         self.data_manager.load_data()
