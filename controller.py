@@ -48,7 +48,8 @@ class Controller(object):
             'time': 0.,
             'avg_bleus': [],
             'gnorms': [],
-            'step': 0.
+            'step': 0.,
+            'lr': []
         }
         for pair in self.pairs:
             self.stats[pair] = {
@@ -74,7 +75,7 @@ class Controller(object):
 
             self.report_epoch(epoch_num)
             self.eval_and_decay()
-
+            self.update_stat(epoch_num)
             if self.lr_scheduler == ac.NO_WU:
                 cond = self.lr < self.stop_lr
             else:
@@ -233,17 +234,17 @@ class Controller(object):
             self.stats[pair]['epoch_nll_loss'] = 0.
             self.stats[pair]['epoch_weight'] = 0.
             self.logger.info('    {}: train_smppl={:.3f}, train_ppl={:.3f}'.format(pair, smppl, ppl))
-        #---------------
-        if (epoch_num%1==0):
-            train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
-            self.logger.info('Epoch {}: Dump stats to {}'.format(epoch_num,train_stats_file))
-            self.stats['epoch_num'] = epoch_num
-            
-            self.logger.info('Dump stats to {}'.format(train_stats_file))
-            open(train_stats_file, 'w').close()
-            with open(train_stats_file, 'wb') as fout:
-                pickle.dump(self.stats, fout)
-
+        
+    def update_stat(self, epoch_num):
+        self.stats['lr'].append(self.lr)
+        train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
+        self.logger.info('Epoch {}: Dump stats to {}'.format(epoch_num,train_stats_file))
+        self.stats['epoch_num'] = epoch_num
+        
+        self.logger.info('Dump stats to {}'.format(train_stats_file))
+        open(train_stats_file, 'w').close()
+        with open(train_stats_file, 'wb') as fout:
+            pickle.dump(self.stats, fout)
     def eval_and_decay(self):
         self.eval_ppl()
         self.eval_bleu()
