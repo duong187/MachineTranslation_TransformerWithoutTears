@@ -158,7 +158,7 @@ class Controller(object):
         self.stats['step'] += 1.
         self.stats['words'] += num_words
         self.stats['time'] += time.time() - start
-        self.stats['gnorms'].append(gnorm)
+        self.stats['gnorms'].append(gnorm.cpu().item())
 
         # per pair stats
         self.stats[pair]['log_loss'] += loss
