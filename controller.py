@@ -43,6 +43,7 @@ class Controller(object):
         self.log_freq = args.log_freq
         self.pairs = args.pairs.split(',')
         self.stats = {
+            'epoch_num':0,
             'words': 0.,
             'time': 0.,
             'avg_bleus': [],
@@ -232,6 +233,14 @@ class Controller(object):
             self.stats[pair]['epoch_nll_loss'] = 0.
             self.stats[pair]['epoch_weight'] = 0.
             self.logger.info('    {}: train_smppl={:.3f}, train_ppl={:.3f}'.format(pair, smppl, ppl))
+        if (epoch_num%5==0):
+            self.logger.info('Epoch {}: Dump stats to {}'.format(epoch_num,train_stats_file))
+            self.stats['epoch_num'] = epoch_num
+            train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
+            self.logger.info('Dump stats to {}'.format(train_stats_file))
+            open(train_stats_file, 'w').close()
+            with open(train_stats_file, 'wb') as fout:
+                pickle.dump(self.stats, fout)
 
     def eval_and_decay(self):
         self.eval_ppl()
