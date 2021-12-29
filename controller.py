@@ -43,12 +43,11 @@ class Controller(object):
         self.log_freq = args.log_freq
         self.pairs = args.pairs.split(',')
         self.stats = {
-            'epoch_num':0,
             'words': 0.,
             'time': 0.,
             'avg_bleus': [],
             'gnorms': [],
-            'step': 0.,
+            'step': 0,
             'lr': []
         }
         for pair in self.pairs:
@@ -85,7 +84,7 @@ class Controller(object):
 
             self.report_epoch(epoch_num)
             self.eval_and_decay()
-            self.update_stat(epoch_num)
+            self.save_stat(epoch_num)
             if self.lr_scheduler == ac.NO_WU:
                 cond = self.lr < self.stop_lr
             else:
@@ -245,16 +244,20 @@ class Controller(object):
             self.stats[pair]['epoch_weight'] = 0.
             self.logger.info('    {}: train_smppl={:.3f}, train_ppl={:.3f}'.format(pair, smppl, ppl))
         
-    def update_stat(self, epoch_num):
+    def save_stat(self, epoch_num):
         self.stats['lr'].append(self.lr)
-        train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
-        self.logger.info('Epoch {}: Dump stats to {}'.format(epoch_num,train_stats_file))
-        self.stats['epoch_num'] = epoch_num
-        
+        #train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
+        train_stats_file = join(path_to_drive, 'train_stats.pkl')
+        self.logger.info('Epoch {}: Dump stats to {}'.format(epoch_num,train_stats_file))        
         self.logger.info('Dump stats to {}'.format(train_stats_file))
         open(train_stats_file, 'w').close()
         with open(train_stats_file, 'wb') as fout:
             pickle.dump(self.stats, fout)
+        model_file = join(dump_dir, 'model.pth')
+        delete_filepath = join(path_to_drive,'model.pth')
+        open(delete_filename, 'w').close()
+        os.remove(delete_filename)
+        %cp $model_file -d path_to_drive
     def eval_and_decay(self):
         self.eval_ppl()
         self.eval_bleu()
