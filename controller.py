@@ -7,6 +7,7 @@ import torch
 from os.path import join
 import all_constants as ac
 import utils as ut
+import shutil
 
 if torch.cuda.is_available():
     torch.cuda.manual_seed(ac.SEED)
@@ -38,7 +39,7 @@ class Controller(object):
 
         self.model.to(self.device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
-
+        self.path_to_drive = '/content/drive/MyDrive/HUST/20211/NLP/'
         # logging
         self.log_freq = args.log_freq
         self.pairs = args.pairs.split(',')
@@ -69,16 +70,19 @@ class Controller(object):
             self.load()
    
     def load(self):
-        train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
+        train_stats_file = join(self.path_to_drive, 'train_stats.pkl')
         open(train_stats_file, 'r').close()
         with open(train_stats_file, 'rb') as f:
             self.stats = pickle.load(f)
-    
+        #ckpt_file = join(self.args.dump_dir, 'model.pth')
+        ckpt_file = join(self.path_to_drive, 'model.pth')
+        self.model.load_state_dict(torch.load(ckpt_file))
 
     def train(self):
         # load data
         self.data_manager.load_data()
-        for epoch_num in range(1, self.max_epochs + 1):
+        
+        for epoch_num in range(int(self.stats['step']/self.epoch_size)+1, self.max_epochs + 1):
             for batch_num in range(1, self.epoch_size + 1):
                 self.run_log(batch_num, epoch_num)
 
@@ -253,11 +257,12 @@ class Controller(object):
         open(train_stats_file, 'w').close()
         with open(train_stats_file, 'wb') as fout:
             pickle.dump(self.stats, fout)
+        dump_dir = self.args.dump_dir
         model_file = join(dump_dir, 'model.pth')
-        delete_filepath = join(path_to_drive,'model.pth')
+        delete_filename = join(self.path_to_drive,'model.pth')
         open(delete_filename, 'w').close()
         os.remove(delete_filename)
-        %cp $model_file -d path_to_drive
+        shutil.copy(model_file,delete_filename)
     def eval_and_decay(self):
         self.eval_ppl()
         self.eval_bleu()
