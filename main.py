@@ -32,6 +32,10 @@ def get_parser():
                         help='How often do we log training progress (# of batches)')
     parser.add_argument('--config', type=str, required=True,
                         help='Model and training configuration, see configurations.py')
+    parser.add_argument('--get-save', type=int, default=0,
+                        help='How often do we log training progress (# of batches)')
+    parser.add_argument('--colab', type=int, default=0,
+                        help='How often do we log training progress (# of batches)')
     return parser
 
 

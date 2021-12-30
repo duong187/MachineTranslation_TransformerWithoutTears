@@ -251,7 +251,7 @@ class Controller(object):
     def save_stat(self, epoch_num):
         self.stats['lr'].append(self.lr)
         #train_stats_file = join(self.args.dump_dir, 'train_stats.pkl')
-        train_stats_file = join(path_to_drive, 'train_stats.pkl')
+        train_stats_file = join(self.path_to_drive, 'train_stats.pkl')
         self.logger.info('Epoch {}: Dump stats to {}'.format(epoch_num,train_stats_file))        
         self.logger.info('Dump stats to {}'.format(train_stats_file))
         open(train_stats_file, 'w').close()
