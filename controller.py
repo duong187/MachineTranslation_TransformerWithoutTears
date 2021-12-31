@@ -77,6 +77,7 @@ class Controller(object):
         #ckpt_file = join(self.args.dump_dir, 'model.pth')
         ckpt_file = join(self.path_to_drive, 'model.pth')
         self.model.load_state_dict(torch.load(ckpt_file))
+        self.lr = self.stats['lr'][-1]
 
     def train(self):
         # load data
